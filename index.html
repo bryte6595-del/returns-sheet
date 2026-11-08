@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Distillers and Retailers Co-op Returns Sheet</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#17703f">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: an input panel on top, then the returns sheet laid out like the paper form (distillers left, retailers right), ready to print. */
+:root{
+  --bg:#E8EFEA;
+  --card:#FFFFFF;
+  --rule:#C6D3CB;
+  --text:#18231D;
+  --muted:#55645B;
+  --accent:#17703F;
+  --on-accent:#FFFFFF;
+  --danger:#B3261E;
+  --ok:#17713F;
+  --f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-label:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1512;--card:#151E19;--rule:#2A3A31;--text:#E4EEE8;--muted:#96A89D;
+    --accent:#6FD3A0;--on-accent:#07241A;--danger:#FF8F86;--ok:#6FD39A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1512;--card:#151E19;--rule:#2A3A31;--text:#E4EEE8;--muted:#96A89D;
+  --accent:#6FD3A0;--on-accent:#07241A;--danger:#FF8F86;--ok:#6FD39A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:15px/1.45 var(--f-ui);
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.page{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1{margin:0;font:700 24px/1.1 var(--f-label);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.sub{margin:4px 0 0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px;min-width:0;box-shadow:0 1px 2px color-mix(in srgb,var(--text) 10%,transparent)}
+h2.sec{display:flex;align-items:center;gap:10px;margin:0 0 14px;font:700 15px var(--f-label);letter-spacing:.12em;text-transform:uppercase}
+.stepno{display:inline-grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:700 14px var(--f-ui);letter-spacing:0}
+.hero{position:relative;overflow:hidden;display:grid;gap:16px;padding:22px 20px 18px;border-radius:14px;background:var(--accent);color:var(--on-accent)}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 31px,color-mix(in srgb,var(--on-accent) 14%,transparent) 31px 32px)}
+.hero>*{position:relative}
+.hero .sub{color:inherit;opacity:.88;max-width:46ch}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tiles>div{display:grid;gap:2px;min-width:0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--on-accent) 16%,transparent)}
+.tl{font:600 12px var(--f-label);letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+.tv{font:700 26px/1.1 var(--f-ui);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media (max-width:480px){.tv{font-size:20px}.hero{padding:18px 16px 16px}}
+.elist{list-style:none;margin:0;padding:0}
+.erow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--rule)}
+.erow:last-child{border-bottom:0;padding-bottom:0}
+.einfo{display:grid;min-width:0}
+.ename{font-weight:600;overflow-wrap:anywhere}
+.emeta{font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.eact{display:flex;gap:6px;flex:none}
+.ib{min-height:42px;padding:0 14px;border:1px solid var(--rule);border-radius:8px;background:var(--card);font:600 14px var(--f-ui);color:var(--accent)}
+.ib.del{color:var(--danger)}
+.nothing{margin:0;color:var(--muted)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+details.card>summary{display:flex;align-items:center;gap:10px;min-height:32px;cursor:pointer;list-style:none;font:700 15px var(--f-label);letter-spacing:.12em;text-transform:uppercase}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary::after{content:"";margin-left:auto;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+details.card[open]>summary::after{transform:rotate(-135deg)}
+details.card[open]>summary{margin-bottom:12px}
+.count{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 8px;border-radius:13px;background:var(--rule);color:var(--text);font:700 13px var(--f-ui);letter-spacing:0}
+.sugwrap{position:relative;min-width:0}
+.sug{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;max-height:240px;overflow:auto;background:var(--card);border:1px solid var(--rule);border-radius:10px;box-shadow:0 8px 24px color-mix(in srgb,var(--text) 22%,transparent)}
+.sug li{padding:11px 12px;border-radius:7px;cursor:pointer;overflow-wrap:anywhere}
+.sug li:hover,.sug li[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+@media (prefers-reduced-motion:reduce){details.card>summary::after{transition:none}}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font:600 12.5px var(--f-label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.input{width:100%;min-width:0;min-height:46px;padding:0 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--text);font:16px/1.2 var(--f-ui)}
+.input.num{font-variant-numeric:tabular-nums}
+.pair{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px}
+.btn{min-height:46px;padding:0 18px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--text);font:600 15px var(--f-ui)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.armed{background:var(--danger);border-color:var(--danger);color:var(--card)}
+.formrow{display:grid;gap:12px;grid-template-columns:minmax(0,1.5fr) minmax(88px,.5fr) minmax(0,1.5fr) auto;align-items:end}
+@media (max-width:640px){.formrow{grid-template-columns:minmax(0,1fr) 96px}.formrow .wide{grid-column:1/-1}}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.hint{margin:0;font-size:13.5px;color:var(--muted)}
+.msg{margin:0;font-size:13.5px;min-height:1.4em}
+.msg.bad{color:var(--danger)}
+.msg.good{color:var(--ok)}
+.sheetwrap{overflow:visible}
+#sheet .sheetbox{box-shadow:0 4px 16px color-mix(in srgb,var(--text) 22%,transparent);border-radius:4px}
+</style>
+</head><body>
+<div class="page">
+  <header class="hero noprint">
+    <div>
+      <h1>Distillers and Retailers Co-op Returns Sheet</h1>
+      <p class="sub">Fill in the details, add each entry, and the sheet fills in like your paper form.</p>
+    </div>
+    <div class="tiles" aria-live="polite">
+      <div><span class="tl">Total tins</span><span class="tv" id="sTins">0</span></div>
+      <div><span class="tl">Distillers</span><span class="tv" id="sDist">0.00</span></div>
+      <div><span class="tl">Retailers</span><span class="tv" id="sRet">0.00</span></div>
+    </div>
+  </header>
+
+  <section class="card noprint" aria-label="Sheet details">
+    <h2 class="sec"><span class="stepno">1</span>Sheet details</h2>
+    <div class="grid">
+      <div class="field"><label for="society">Name of society</label><div class="sugwrap"><input id="society" class="input" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sSug" placeholder="e.g. Kenyasi" autocomplete="off" maxlength="80"><ul class="sug" id="sSug" role="listbox" hidden></ul></div></div>
+      <div class="field"><label for="month">Month and year</label>
+        <div class="pair"><select id="month" class="input"></select><input id="year" class="input num" placeholder="Year" inputmode="numeric" maxlength="4" autocomplete="off"></div>
+      </div>
+      <div class="field"><label for="distRate">Distillers rate per tin</label><input id="distRate" class="input num" inputmode="decimal" autocomplete="off"></div>
+      <div class="field"><label for="retRate">Retailers rate per tin</label><input id="retRate" class="input num" inputmode="decimal" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card noprint" aria-label="Add an entry">
+    <h2 class="sec"><span class="stepno">2</span><span id="formTitle">Add an entry</span></h2>
+    <form id="entryForm" autocomplete="off">
+      <div class="formrow">
+        <div class="field"><label for="rName">Retailer's name</label><div class="sugwrap"><input id="rName" class="input" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rSug" maxlength="80" autocomplete="off"><ul class="sug" id="rSug" role="listbox" hidden></ul></div></div>
+        <div class="field"><label for="tins">Tins</label><input id="tins" class="input num" inputmode="numeric" value="1" maxlength="3" autocomplete="off"></div>
+        <div class="field wide"><label for="dName">Distiller's name (if available)</label><div class="sugwrap"><input id="dName" class="input" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="dSug" maxlength="80" autocomplete="off"><ul class="sug" id="dSug" role="listbox" hidden></ul></div></div>
+        <div class="actions"><button id="addBtn" class="btn primary" type="submit">Add entry</button><button id="cancelBtn" class="btn" type="button" hidden>Cancel</button></div>
+      </div>
+    </form>
+    <p id="formMsg" class="msg" role="status"></p>
+  </section>
+
+  <details class="card noprint" id="entriesBox">
+    <summary>Entries so far <span class="count" id="entryCount">0</span></summary>
+    <div id="entryList"></div>
+  </details>
+
+  <section aria-label="Returns sheet">
+    <h2 class="sec noprint"><span class="stepno">3</span>Your sheet</h2>
+    <div class="sheetwrap" id="fit"><div id="sheet"></div></div>
+  </section>
+
+  <section class="card noprint" aria-label="Print and save">
+    <h2 class="sec">Print or save as PDF</h2>
+    <div class="actions">
+      <button id="printBtn" class="btn primary" type="button">Print or save as PDF</button>
+      <button id="clearBtn" class="btn danger" type="button">Start new sheet</button>
+    </div>
+    <p id="saveMsg" class="msg" role="status"></p>
+    <p class="hint">In the print window, choose "Save as PDF" to get a file named after your society and month, such as KENYASI-JUNE-26. Every print is also kept in Saved sheets below. Your work stays on this page, even after printing, until you press Start new sheet.</p>
+  </section>
+  <details class="card noprint" id="savedBox">
+    <summary>Saved sheets <span class="count" id="savedCount">0</span></summary>
+    <div id="savedList"></div>
+  </details>
+</div>
+
+<script>
+(function(){
+'use strict';
+var KEY='dabiesoaba-returns-simple-v1';
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var now=new Date();
+var s={society:'',month:-1,year:0,distRate:1.5,retRate:2.5,entries:[]};
+var editIdx=-1;
+var $=function(id){return document.getElementById(id);};
+
+/* Sheet styling is shared by this page and the saved printable file. */
+var SHEET_CSS=[
+':root{--sheet-bg:#fff;--sheet-ink:#111;--sheet-rule:#555;--sheet-muted:#555}',
+'.pg+.pg{margin-top:18px}',
+'.sheetbox{width:790px;box-sizing:border-box;background:var(--sheet-bg);color:var(--sheet-ink);padding:14px 14px 8px;font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif}',
+'.toptitle{text-align:center;margin:0 0 10px;font-size:19px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#17703f;font-family:Arial,sans-serif}',
+'table.sheet{width:100%;border-collapse:collapse;table-layout:fixed;font-size:14px}',
+'table.sheet th,table.sheet td{border:1px solid var(--sheet-rule);padding:2px 7px;vertical-align:middle}',
+'table.sheet td{height:28px}',
+'table.sheet td.hd{padding:5px 8px 3px;border-bottom:0;border-top:1px solid var(--sheet-rule);height:auto}',
+'table.sheet th{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:4px 7px}',
+'.fld{display:flex;align-items:baseline;gap:8px;min-width:0}',
+'.fld .l{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}',
+'.fld .v{flex:1;min-width:0;border-bottom:1px dotted var(--sheet-rule);font-weight:700;overflow-wrap:anywhere;font-family:Arial,sans-serif;font-size:14px}',
+'col.cn{width:28%}col.ct{width:9%}col.ca{width:13%}',
+'td.nm{text-align:left;overflow-wrap:anywhere;font-family:Arial,sans-serif}',
+'td.n{text-align:center;font-family:Arial,sans-serif;font-variant-numeric:tabular-nums}',
+'td.a{text-align:right;font-family:Arial,sans-serif;font-variant-numeric:tabular-nums}',
+'.split{border-left:3px double var(--sheet-ink)!important}',
+'tfoot td{font-weight:700;border-top:2px solid var(--sheet-ink);height:32px}',
+'tfoot td.lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif}',
+'.pgfoot{display:flex;justify-content:space-between;gap:12px;margin-top:6px;font-size:10px;letter-spacing:.04em;color:var(--sheet-muted);font-family:Arial,sans-serif}'
+].join('');
+var styleEl=document.createElement('style');styleEl.textContent=SHEET_CSS;document.head.appendChild(styleEl);
+var printEl=document.createElement('style');
+printEl.textContent='@page{size:A4 portrait;margin:8mm}@media print{.noprint{display:none!important}html,body{background:#fff!important}body{padding:0!important}.page{display:block;max-width:none}.sheetwrap{height:auto!important;overflow:visible}#sheet{transform:none!important;width:auto!important}#sheet .sheetbox{padding:0;width:auto!important;box-shadow:none!important;border-radius:0;break-after:page;break-inside:avoid}#sheet .sheetbox:last-child{break-after:auto}.pg+.pg{margin-top:0}}';
+document.head.appendChild(printEl);
+
+/* ---------- helpers ---------- */
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fmt(c){return (c/100).toFixed(2);}
+function cents(r){return Math.round(r*100);}
+function parseRate(v){var t=String(v).trim().replace(',','.');if(t==='')return null;var n=Number(t);return isFinite(n)&&n>=0&&n<100000?Math.round(n*100)/100:null;}
+function monthText(){return (s.month>=0?MONTHS[s.month]:'')+(s.month>=0&&s.year?', ':'')+(s.year||'');}
+function load(){
+  try{
+    var o=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(!o)return;
+    if(typeof o.society==='string')s.society=o.society.slice(0,80);
+    if(o.month>=-1&&o.month<=11)s.month=o.month|0;
+    if(o.year===0||(o.year>=1900&&o.year<=2200))s.year=o.year|0;
+    var d=parseRate(o.distRate);if(d!==null)s.distRate=d;
+    var r=parseRate(o.retRate);if(r!==null)s.retRate=r;
+    if(Array.isArray(o.entries))s.entries=o.entries.filter(function(e){return e&&typeof e.r==='string'&&e.t>0;}).map(function(e){return {r:e.r.slice(0,80),t:Math.min(999,e.t|0),d:typeof e.d==='string'?e.d.slice(0,80):''};});
+  }catch(e){}
+}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
+
+/* ---------- the sheet ---------- */
+var P1=28,PN=32; /* rows on the first page, then on each following page */
+function sheetHtml(){
+  var dr=cents(s.distRate),rr=cents(s.retRate),totT=0;
+  s.entries.forEach(function(e){totT+=e.t;});
+  var n=s.entries.length,ranges=[[0,Math.min(n,P1)]],at=P1;
+  while(at<n){ranges.push([at,Math.min(n,at+PN)]);at+=PN;}
+  var society=esc(s.society||''),out='';
+  function fld(l,v){return '<div class="fld"><span class="l">'+l+'</span><span class="v">'+v+'</span></div>';}
+  ranges.forEach(function(rg,p){
+    var cap=p===0?P1:PN,last=p===ranges.length-1,rows='';
+    for(var i=0;i<cap;i++){
+      var e=rg[0]+i<rg[1]?s.entries[rg[0]+i]:null;
+      rows+=e
+        ?'<tr><td class="nm">'+esc(e.d)+'</td><td class="n">'+e.t+'</td><td class="a">'+fmt(e.t*dr)+'</td><td class="nm split">'+esc(e.r)+'</td><td class="n">'+e.t+'</td><td class="a">'+fmt(e.t*rr)+'</td></tr>'
+        :'<tr><td class="nm">&nbsp;</td><td class="n"></td><td class="a"></td><td class="nm split"></td><td class="n"></td><td class="a"></td></tr>';
+    }
+    var head='';
+    if(p===0){
+      head='<tr><td class="hd" colspan="3">'+fld('Name of society',society)+'</td><td class="hd split" colspan="3">'+fld('Name of society',society)+'</td></tr>'
+        +'<tr><td class="hd" colspan="3" style="border-top:0">'+fld('Month',monthText())+'</td><td class="hd split" colspan="3" style="border-top:0">'+fld('Month',monthText())+'</td></tr>'
+        +'<tr><td class="hd" colspan="3" style="border-top:0">'+fld('Returns format distillers',fmt(dr))+'</td><td class="hd split" colspan="3" style="border-top:0">'+fld('Returns format retailers',fmt(rr))+'</td></tr>';
+    }
+    head+='<tr><th>Members name</th><th>No. of tins</th><th>Amount</th><th class="split">Members name</th><th>No. of tins</th><th>Amount</th></tr>';
+    var foot=last
+      ?'<tfoot><tr><td class="lab">Total</td><td class="n">'+totT+'</td><td class="a">'+fmt(totT*dr)+'</td><td class="lab split">Total</td><td class="n">'+totT+'</td><td class="a">'+fmt(totT*rr)+'</td></tr></tfoot>'
+      :'';
+    out+='<div class="pg sheetbox">'
+      +(p===0?'<p class="toptitle">Distillers and Retailers Co-op Returns Sheet</p>':'')
+      +'<table class="sheet"><colgroup><col class="cn"><col class="ct"><col class="ca"><col class="cn"><col class="ct"><col class="ca"></colgroup><thead>'+head+'</thead><tbody>'+rows+'</tbody>'+foot+'</table>'
+      +'<div class="pgfoot"><span>'+[society,monthText()].filter(Boolean).join(' &middot; ')+'</span><span>Page '+(p+1)+' of '+ranges.length+'</span></div></div>';
+  });
+  return out;
+}
+function renderList(){
+  var el=$('entryList');
+  $('entryCount').textContent=String(s.entries.length);
+  if(!s.entries.length){el.innerHTML='<p class="nothing">No entries yet. Add the first one above and it appears on the sheet.</p>';return;}
+  el.innerHTML='<ul class="elist">'+s.entries.map(function(e,i){
+    return '<li class="erow"><div class="einfo"><span class="ename">'+esc(e.r)+'</span><span class="emeta">'+e.t+(e.t===1?' tin':' tins')+(e.d?' from '+esc(e.d):', no distiller named')+'</span></div>'
+      +'<div class="eact"><button type="button" class="ib" data-edit="'+i+'" aria-label="Edit entry for '+esc(e.r)+'">Edit</button><button type="button" class="ib del" data-del="'+i+'" aria-label="Delete entry for '+esc(e.r)+'">Delete</button></div></li>';
+  }).join('')+'</ul>';
+}
+function summary(){
+  var t=0;s.entries.forEach(function(e){t+=e.t;});
+  $('sTins').textContent=String(t);
+  $('sDist').textContent=fmt(t*cents(s.distRate));
+  $('sRet').textContent=fmt(t*cents(s.retRate));
+}
+function fit(){
+  var box=$('fit'),inner=$('sheet');
+  var sc=Math.min(1.25,box.clientWidth/790);
+  inner.style.width='790px';
+  inner.style.transformOrigin='0 0';
+  inner.style.transform=sc===1?'':'scale('+sc+')';
+  box.style.height=Math.ceil(inner.offsetHeight*sc)+'px';
+}
+if(window.ResizeObserver)new ResizeObserver(fit).observe($('fit'));
+window.addEventListener('resize',fit);
+function renderSheet(){
+  $('sheet').innerHTML=sheetHtml();
+  renderList();summary();fit();
+}
+
+/* ---------- form ---------- */
+function setMsg(id,text,kind){var el=$(id);el.textContent=text||'';el.className='msg'+(kind?' '+kind:'');}
+function resetForm(keepDistiller){
+  editIdx=-1;
+  $('rName').value='';$('tins').value='1';
+  if(!keepDistiller)$('dName').value='';
+  $('addBtn').textContent='Add entry';
+  $('formTitle').textContent='Add an entry';
+  $('cancelBtn').hidden=true;
+}
+$('entryForm').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var r=$('rName').value.trim().slice(0,80);
+  var d=$('dName').value.trim().slice(0,80);
+  var t=parseInt($('tins').value,10);
+  if(!r){setMsg('formMsg',"Type the retailer's name first.",'bad');$('rName').focus();return;}
+  if(!(t>=1&&t<=999)){setMsg('formMsg','Tins must be a whole number from 1 to 999.','bad');$('tins').focus();return;}
+  var entry={r:r,t:t,d:d};
+  if(editIdx>=0&&editIdx<s.entries.length){s.entries[editIdx]=entry;setMsg('formMsg','Entry updated.','good');resetForm(false);}
+  else{s.entries.push(entry);setMsg('formMsg','Added '+r+' with '+t+(t===1?' tin':' tins')+'.','good');resetForm(true);}
+  persist();renderSheet();hideSugs();
+  $('rName').focus();
+});
+$('cancelBtn').addEventListener('click',function(){resetForm(false);setMsg('formMsg','');});
+
+$('entryList').addEventListener('click',function(ev){
+  var b=ev.target.closest('button');if(!b)return;
+  if(b.dataset.del!==undefined){
+    var i=Number(b.dataset.del);
+    if(i===editIdx)resetForm(false);else if(i<editIdx)editIdx--;
+    s.entries.splice(i,1);persist();renderSheet();setMsg('formMsg','Entry deleted.');
+  }else if(b.dataset.edit!==undefined){
+    var j=Number(b.dataset.edit),e=s.entries[j];if(!e)return;
+    editIdx=j;
+    $('rName').value=e.r;$('tins').value=String(e.t);$('dName').value=e.d;
+    $('addBtn').textContent='Save change';
+    $('formTitle').textContent='Edit entry';
+    $('cancelBtn').hidden=false;
+    setMsg('formMsg','Change what you need, then press Save change.');
+    $('rName').focus();
+    $('entryForm').scrollIntoView({block:'center'});
+  }
+});
+
+/* ---------- name suggestions (only while typing) ---------- */
+var sugHides=[];
+function hideSugs(){sugHides.forEach(function(h){h();});}
+function pastNames(kind){
+  var seen={},out=[];
+  if(kind==='s'){readLib().forEach(function(x){var n=(x.society||'').trim();if(n&&!seen[n.toLowerCase()]){seen[n.toLowerCase()]=1;out.push(n);}});return out;}
+  s.entries.forEach(function(e){
+    var n=kind==='r'?e.r:e.d;
+    if(n&&!seen[n.toLowerCase()]){seen[n.toLowerCase()]=1;out.push(n);}
+  });
+  return out;
+}
+function wireSuggest(inputId,listId,kind){
+  var inp=$(inputId),ul=$(listId),items=[],active=-1;
+  function paint(){
+    Array.prototype.forEach.call(ul.children,function(li,i){li.setAttribute('aria-selected',i===active?'true':'false');});
+  }
+  function hide(){ul.hidden=true;active=-1;inp.setAttribute('aria-expanded','false');}
+  function show(){
+    var q=inp.value.trim().toLowerCase();
+    if(!q){hide();return;}
+    items=pastNames(kind).filter(function(n){var l=n.toLowerCase();return l!==q&&l.indexOf(q)!==-1;})
+      .sort(function(a,b){
+        var sa=a.toLowerCase().indexOf(q)===0?0:1,sb=b.toLowerCase().indexOf(q)===0?0:1;
+        return sa-sb||a.localeCompare(b);
+      }).slice(0,6);
+    if(!items.length){hide();return;}
+    ul.innerHTML=items.map(function(n,i){return '<li role="option" aria-selected="false" data-i="'+i+'">'+esc(n)+'</li>';}).join('');
+    ul.hidden=false;active=-1;inp.setAttribute('aria-expanded','true');
+  }
+  function pick(i){inp.value=items[i];hide();if(kind==='s'){s.society=inp.value.slice(0,80);persist();renderSheet();}}
+  inp.addEventListener('input',show);
+  inp.addEventListener('keydown',function(ev){
+    if(ul.hidden)return;
+    if(ev.key==='ArrowDown'){ev.preventDefault();active=(active+1)%items.length;paint();}
+    else if(ev.key==='ArrowUp'){ev.preventDefault();active=(active-1+items.length)%items.length;paint();}
+    else if(ev.key==='Enter'&&active>=0){ev.preventDefault();pick(active);}
+    else if(ev.key==='Escape'){hide();}
+  });
+  inp.addEventListener('blur',function(){setTimeout(hide,120);});
+  ul.addEventListener('pointerdown',function(ev){
+    var li=ev.target.closest('li');
+    if(!li)return;
+    ev.preventDefault();
+    pick(Number(li.dataset.i));
+  });
+  sugHides.push(hide);
+}
+
+/* ---------- sheet details ---------- */
+(function(){
+  var sel=$('month');
+  sel.innerHTML='<option value="">Choose month</option>'+MONTHS.map(function(m,i){return '<option value="'+i+'">'+m+'</option>';}).join('');
+})();
+function fillDetails(){
+  $('society').value=s.society;$('month').value=s.month>=0?String(s.month):'';$('year').value=s.year?String(s.year):'';
+  $('distRate').value=s.distRate.toFixed(2);$('retRate').value=s.retRate.toFixed(2);
+}
+$('society').addEventListener('input',function(){s.society=this.value.slice(0,80);persist();renderSheet();});
+$('month').addEventListener('change',function(){s.month=this.value===''?-1:Number(this.value);persist();renderSheet();});
+$('year').addEventListener('input',function(){var t=this.value.trim();if(t===''){s.year=0;persist();renderSheet();return;}var y=parseInt(t,10);if(y>=1900&&y<=2200){s.year=y;persist();renderSheet();}});
+$('year').addEventListener('change',function(){this.value=s.year?String(s.year):'';});
+['distRate','retRate'].forEach(function(id){
+  var el=$(id);
+  el.addEventListener('input',function(){var v=parseRate(this.value);if(v===null)return;s[id]=v;persist();renderSheet();});
+  el.addEventListener('change',function(){this.value=s[id].toFixed(2);});
+});
+
+/* ---------- clear all ---------- */
+var armTimer=0;
+$('clearBtn').addEventListener('click',function(){
+  var b=this;
+  if(b.classList.contains('armed')){
+    clearTimeout(armTimer);b.classList.remove('armed');b.textContent='Start new sheet';
+    s.society='';s.month=-1;s.year=0;s.entries=[];resetForm(false);fillDetails();persist();renderSheet();setMsg('formMsg','');setMsg('saveMsg','Ready for a new sheet.');
+    return;
+  }
+  b.classList.add('armed');b.textContent='Tap again to start a new sheet';
+  armTimer=setTimeout(function(){b.classList.remove('armed');b.textContent='Start new sheet';},3500);
+});
+
+/* ---------- save a printable file ---------- */
+var FIT_JS="(function(){var w=document.getElementById('w'),f=document.getElementById('f');function fit(){var sc=Math.min(1.25,w.clientWidth/790);f.style.transform=sc===1?'':'scale('+sc+')';w.style.height=Math.ceil(f.offsetHeight*sc)+'px';}addEventListener('resize',fit);fit();})();";
+function printableDoc(){
+  var css=SHEET_CSS+'*{box-sizing:border-box}body{margin:0;padding:16px;background:#e8efea;color:#111}.bar{max-width:1100px;margin:0 auto 12px;display:flex;gap:10px;align-items:center;font-family:Arial,sans-serif}.bar button{min-height:44px;padding:0 20px;border:0;border-radius:8px;background:#17703f;color:#fff;font:600 16px Arial,sans-serif;cursor:pointer}.bar span{color:#444;font-size:14px}.wrap{max-width:1100px;margin:0 auto;overflow:hidden}.sheetbox{box-shadow:0 2px 10px rgba(0,0,0,.25)}@page{size:A4 portrait;margin:8mm}@media print{.bar{display:none}html,body{background:#fff}body{padding:0}.wrap{overflow:visible;max-width:none;height:auto!important}.fit{transform:none!important;width:auto!important}.sheetbox{padding:0;width:auto!important;box-shadow:none;break-after:page;break-inside:avoid}.sheetbox:last-child{break-after:auto}.pg+.pg{margin-top:0}}';
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc((s.society||'Returns')+' '+monthText())+'</title><style>'+css+'</style></head><body>'
+    +'<div class="bar"><button type="button" onclick="window.print()">Print</button><span>Choose A4 portrait paper if asked.</span></div>'
+    +'<div class="wrap" id="w"><div class="fit" id="f" style="width:790px;transform-origin:0 0">'+sheetHtml()+'</div></div><script>'+FIT_JS+'<\/script></body></html>';
+}
+function fileName(){
+  var base=(s.society||'Returns').replace(/[^A-Za-z0-9 _-]/g,'').trim().replace(/\s+/g,'-')||'Returns';
+  return base+'-Returns-'+MONTHS[s.month]+'-'+s.year+'.html';
+}
+async function wireSave(){
+  var dl=null;
+  try{dl=await window.claude.use('downloads');}catch(e){dl=null;}
+  if(!dl)return;
+  var btn=$('saveBtn');btn.hidden=false;
+  btn.addEventListener('click',async function(){
+    setMsg('saveMsg','');
+    try{
+      var r=await dl.save({filename:fileName(),data:printableDoc()});
+      if(r&&r.status==='saved')setMsg('saveMsg','Saved. Open the file and press Print.','good');
+    }catch(e){
+      if(e&&e.code==='declined')return;
+      setMsg('saveMsg',"The file could not be saved here. Try Ctrl+P on this page instead.",'bad');
+    }
+  });
+}
+
+/* ---------- print and saved sheets ---------- */
+var LIB_KEY='returns-saved-sheets-v1';
+function readLib(){try{var a=JSON.parse(localStorage.getItem(LIB_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function writeLib(a){try{localStorage.setItem(LIB_KEY,JSON.stringify(a));}catch(e){}}
+function pdfName(){
+  var up=function(t){return String(t).toUpperCase().replace(/[^A-Z0-9]+/g,'-').replace(/^-+|-+$/g,'');};
+  var parts=[up(s.society),s.month>=0?MONTHS[s.month].toUpperCase():'',s.year?String(s.year).slice(-2):''].filter(Boolean);
+  return parts.join('-')||'RETURNS-SHEET';
+}
+function arm(btn,label,fn){
+  if(btn.dataset.armed){clearTimeout(Number(btn.dataset.armed));delete btn.dataset.armed;btn.textContent=btn.dataset.label;btn.classList.remove('armed');fn();return;}
+  btn.dataset.label=btn.textContent;btn.textContent=label;btn.classList.add('armed');
+  btn.dataset.armed=String(setTimeout(function(){delete btn.dataset.armed;btn.textContent=btn.dataset.label;btn.classList.remove('armed');},3500));
+}
+function renderSaved(){
+  var lib=readLib(),el=$('savedList');
+  $('savedCount').textContent=String(lib.length);
+  if(!lib.length){el.innerHTML='<p class="nothing">Nothing saved yet. Sheets you print or save as PDF are kept here so you can reopen and correct them.</p>';return;}
+  el.innerHTML='<ul class="elist">'+lib.map(function(x,i){
+    var t=0;x.entries.forEach(function(e){t+=e.t;});
+    return '<li class="erow"><div class="einfo"><span class="ename">'+esc(x.id)+'</span><span class="emeta">'+x.entries.length+(x.entries.length===1?' entry, ':' entries, ')+t+(t===1?' tin':' tins')+'</span></div>'
+      +'<div class="eact"><button type="button" class="ib" data-open="'+i+'">Open</button><button type="button" class="ib del" data-rm="'+i+'">Delete</button></div></li>';
+  }).join('')+'</ul>';
+}
+function loadSheet(x){
+  s.society=x.society||'';s.month=x.month;s.year=x.year;s.distRate=x.distRate;s.retRate=x.retRate;
+  s.entries=x.entries.map(function(e){return {r:e.r,t:e.t,d:e.d||''};});
+  resetForm(false);fillDetails();persist();renderSheet();
+  setMsg('saveMsg','Opened '+x.id+'. Correct what you need, then print or save again.','good');
+  window.scrollTo(0,0);
+}
+$('savedList').addEventListener('click',function(ev){
+  var b=ev.target.closest('button');if(!b)return;
+  var lib=readLib();
+  if(b.dataset.rm!==undefined){
+    arm(b,'Tap again to delete',function(){lib.splice(Number(b.dataset.rm),1);writeLib(lib);renderSaved();});
+  }else if(b.dataset.open!==undefined){
+    var x=lib[Number(b.dataset.open)];if(!x)return;
+    if(s.entries.length)arm(b,'Replace what is on screen?',function(){loadSheet(x);});else loadSheet(x);
+  }
+});
+var printing=false,baseTitle=document.title;
+$('printBtn').addEventListener('click',function(){
+  if(!s.entries.length){setMsg('saveMsg','Add at least one entry before printing.','bad');return;}
+  var name=pdfName();
+  var lib=readLib().filter(function(x){return x.id!==name;});
+  lib.unshift({id:name,society:s.society,month:s.month,year:s.year,distRate:s.distRate,retRate:s.retRate,entries:s.entries,savedAt:Date.now()});
+  writeLib(lib);renderSaved();
+  printing=true;document.title=name;
+  window.print();
+});
+window.addEventListener('afterprint',function(){
+  document.title=baseTitle;
+  if(!printing)return;
+  printing=false;
+  setMsg('saveMsg','Kept as '+pdfName()+' in Saved sheets. Press Start new sheet when you are ready for the next one.','good');
+});
+
+/* ---------- start ---------- */
+load();fillDetails();renderSheet();renderSaved();wireSuggest('society','sSug','s');wireSuggest('rName','rSug','r');wireSuggest('dName','dSug','d');
+})();
+</script>
+<script>
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+}
+</script>
+</body></html>
