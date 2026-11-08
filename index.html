@@ -136,7 +136,7 @@ details.card[open]>summary{margin-bottom:12px}
     <form id="entryForm" autocomplete="off">
       <div class="formrow">
         <div class="field"><label for="rName">Retailer's name</label><div class="sugwrap"><input id="rName" class="input" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rSug" maxlength="80" autocomplete="off"><ul class="sug" id="rSug" role="listbox" hidden></ul></div></div>
-        <div class="field"><label for="tins">Tins</label><input id="tins" class="input num" inputmode="numeric" value="1" maxlength="3" autocomplete="off"></div>
+        <div class="field"><label for="tins">Tins</label><input id="tins" class="input num" inputmode="decimal" value="1" maxlength="7" autocomplete="off"></div>
         <div class="field wide"><label for="dName">Distiller's name (if available)</label><div class="sugwrap"><input id="dName" class="input" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="dSug" maxlength="80" autocomplete="off"><ul class="sug" id="dSug" role="listbox" hidden></ul></div></div>
         <div class="actions"><button id="addBtn" class="btn primary" type="submit">Add entry</button><button id="cancelBtn" class="btn" type="button" hidden>Cancel</button></div>
       </div>
@@ -211,6 +211,10 @@ document.head.appendChild(printEl);
 function esc(t){return String(t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function fmt(c){return (c/100).toFixed(2);}
 function cents(r){return Math.round(r*100);}
+function cleanT(v){var n=Number(v);if(!isFinite(n))return 0;n=Math.round(n*100)/100;return n>=0.01&&n<=9999.99?n:0;}
+function ti(t){return Math.round(t*100);}
+function fmtT(t){return Number.isInteger(t)?String(t):t.toFixed(2);}
+function amtC(t,rateC){return Math.round(ti(t)*rateC/100);}
 function parseRate(v){var t=String(v).trim().replace(',','.');if(t==='')return null;var n=Number(t);return isFinite(n)&&n>=0&&n<100000?Math.round(n*100)/100:null;}
 function monthText(){return (s.month>=0?MONTHS[s.month]:'')+(s.month>=0&&s.year?', ':'')+(s.year||'');}
 function load(){
@@ -222,7 +226,7 @@ function load(){
     if(o.year===0||(o.year>=1900&&o.year<=2200))s.year=o.year|0;
     var d=parseRate(o.distRate);if(d!==null)s.distRate=d;
     var r=parseRate(o.retRate);if(r!==null)s.retRate=r;
-    if(Array.isArray(o.entries))s.entries=o.entries.filter(function(e){return e&&typeof e.r==='string'&&e.t>0;}).map(function(e){return {r:e.r.slice(0,80),t:Math.min(999,e.t|0),d:typeof e.d==='string'?e.d.slice(0,80):''};});
+    if(Array.isArray(o.entries))s.entries=o.entries.filter(function(e){return e&&typeof e.r==='string'&&cleanT(e.t)>0;}).map(function(e){return {r:e.r.slice(0,80),t:cleanT(e.t),d:typeof e.d==='string'?e.d.slice(0,80):''};});
   }catch(e){}
 }
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
@@ -230,8 +234,9 @@ function persist(){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
 /* ---------- the sheet ---------- */
 var P1=28,PN=32; /* rows on the first page, then on each following page */
 function sheetHtml(){
-  var dr=cents(s.distRate),rr=cents(s.retRate),totT=0;
-  s.entries.forEach(function(e){totT+=e.t;});
+  var dr=cents(s.distRate),rr=cents(s.retRate),totH=0,dAmt=0,rAmt=0;
+  s.entries.forEach(function(e){totH+=ti(e.t);dAmt+=amtC(e.t,dr);rAmt+=amtC(e.t,rr);});
+  var totT=totH/100;
   var n=s.entries.length,ranges=[[0,Math.min(n,P1)]],at=P1;
   while(at<n){ranges.push([at,Math.min(n,at+PN)]);at+=PN;}
   var society=esc(s.society||''),out='';
@@ -241,7 +246,7 @@ function sheetHtml(){
     for(var i=0;i<cap;i++){
       var e=rg[0]+i<rg[1]?s.entries[rg[0]+i]:null;
       rows+=e
-        ?'<tr><td class="nm">'+esc(e.d)+'</td><td class="n">'+e.t+'</td><td class="a">'+fmt(e.t*dr)+'</td><td class="nm split">'+esc(e.r)+'</td><td class="n">'+e.t+'</td><td class="a">'+fmt(e.t*rr)+'</td></tr>'
+        ?'<tr><td class="nm">'+esc(e.d)+'</td><td class="n">'+fmtT(e.t)+'</td><td class="a">'+fmt(amtC(e.t,dr))+'</td><td class="nm split">'+esc(e.r)+'</td><td class="n">'+fmtT(e.t)+'</td><td class="a">'+fmt(amtC(e.t,rr))+'</td></tr>'
         :'<tr><td class="nm">&nbsp;</td><td class="n"></td><td class="a"></td><td class="nm split"></td><td class="n"></td><td class="a"></td></tr>';
     }
     var head='';
@@ -252,7 +257,7 @@ function sheetHtml(){
     }
     head+='<tr><th>Members name</th><th>No. of tins</th><th>Amount</th><th class="split">Members name</th><th>No. of tins</th><th>Amount</th></tr>';
     var foot=last
-      ?'<tfoot><tr><td class="lab">Total</td><td class="n">'+totT+'</td><td class="a">'+fmt(totT*dr)+'</td><td class="lab split">Total</td><td class="n">'+totT+'</td><td class="a">'+fmt(totT*rr)+'</td></tr></tfoot>'
+      ?'<tfoot><tr><td class="lab">Total</td><td class="n">'+fmtT(totT)+'</td><td class="a">'+fmt(dAmt)+'</td><td class="lab split">Total</td><td class="n">'+fmtT(totT)+'</td><td class="a">'+fmt(rAmt)+'</td></tr></tfoot>'
       :'';
     out+='<div class="pg sheetbox">'
       +(p===0?'<p class="toptitle">Distillers and Retailers Co-op Returns Sheet</p>':'')
@@ -266,15 +271,16 @@ function renderList(){
   $('entryCount').textContent=String(s.entries.length);
   if(!s.entries.length){el.innerHTML='<p class="nothing">No entries yet. Add the first one above and it appears on the sheet.</p>';return;}
   el.innerHTML='<ul class="elist">'+s.entries.map(function(e,i){
-    return '<li class="erow"><div class="einfo"><span class="ename">'+esc(e.r)+'</span><span class="emeta">'+e.t+(e.t===1?' tin':' tins')+(e.d?' from '+esc(e.d):', no distiller named')+'</span></div>'
+    return '<li class="erow"><div class="einfo"><span class="ename">'+esc(e.r)+'</span><span class="emeta">'+fmtT(e.t)+(e.t===1?' tin':' tins')+(e.d?' from '+esc(e.d):', no distiller named')+'</span></div>'
       +'<div class="eact"><button type="button" class="ib" data-edit="'+i+'" aria-label="Edit entry for '+esc(e.r)+'">Edit</button><button type="button" class="ib del" data-del="'+i+'" aria-label="Delete entry for '+esc(e.r)+'">Delete</button></div></li>';
   }).join('')+'</ul>';
 }
 function summary(){
-  var t=0;s.entries.forEach(function(e){t+=e.t;});
-  $('sTins').textContent=String(t);
-  $('sDist').textContent=fmt(t*cents(s.distRate));
-  $('sRet').textContent=fmt(t*cents(s.retRate));
+  var h=0,da=0,ra=0,dr=cents(s.distRate),rr=cents(s.retRate);
+  s.entries.forEach(function(e){h+=ti(e.t);da+=amtC(e.t,dr);ra+=amtC(e.t,rr);});
+  $('sTins').textContent=fmtT(h/100);
+  $('sDist').textContent=fmt(da);
+  $('sRet').textContent=fmt(ra);
 }
 function fit(){
   var box=$('fit'),inner=$('sheet');
@@ -305,12 +311,13 @@ $('entryForm').addEventListener('submit',function(ev){
   ev.preventDefault();
   var r=$('rName').value.trim().slice(0,80);
   var d=$('dName').value.trim().slice(0,80);
-  var t=parseInt($('tins').value,10);
+  var raw=$('tins').value.trim().replace(',','.');var t=Number(raw);
   if(!r){setMsg('formMsg',"Type the retailer's name first.",'bad');$('rName').focus();return;}
-  if(!(t>=1&&t<=999)){setMsg('formMsg','Tins must be a whole number from 1 to 999.','bad');$('tins').focus();return;}
+  if(!/^\d{1,4}(\.\d{1,2})?$/.test(raw)||!(t>=0.01&&t<=9999.99)){setMsg('formMsg','Tins must be a number from 0.01 to 9999.99, with up to two decimals.','bad');$('tins').focus();return;}
+  t=Math.round(t*100)/100;
   var entry={r:r,t:t,d:d};
   if(editIdx>=0&&editIdx<s.entries.length){s.entries[editIdx]=entry;setMsg('formMsg','Entry updated.','good');resetForm(false);}
-  else{s.entries.push(entry);setMsg('formMsg','Added '+r+' with '+t+(t===1?' tin':' tins')+'.','good');resetForm(true);}
+  else{s.entries.push(entry);setMsg('formMsg','Added '+r+' with '+fmtT(t)+(t===1?' tin':' tins')+'.','good');resetForm(true);}
   persist();renderSheet();hideSugs();
   $('rName').focus();
 });
@@ -464,8 +471,8 @@ function renderSaved(){
   $('savedCount').textContent=String(lib.length);
   if(!lib.length){el.innerHTML='<p class="nothing">Nothing saved yet. Sheets you print or save as PDF are kept here so you can reopen and correct them.</p>';return;}
   el.innerHTML='<ul class="elist">'+lib.map(function(x,i){
-    var t=0;x.entries.forEach(function(e){t+=e.t;});
-    return '<li class="erow"><div class="einfo"><span class="ename">'+esc(x.id)+'</span><span class="emeta">'+x.entries.length+(x.entries.length===1?' entry, ':' entries, ')+t+(t===1?' tin':' tins')+'</span></div>'
+    var t=0;x.entries.forEach(function(e){t+=ti(e.t);});t=t/100;
+    return '<li class="erow"><div class="einfo"><span class="ename">'+esc(x.id)+'</span><span class="emeta">'+x.entries.length+(x.entries.length===1?' entry, ':' entries, ')+fmtT(t)+(t===1?' tin':' tins')+'</span></div>'
       +'<div class="eact"><button type="button" class="ib" data-open="'+i+'">Open</button><button type="button" class="ib del" data-rm="'+i+'">Delete</button></div></li>';
   }).join('')+'</ul>';
 }
